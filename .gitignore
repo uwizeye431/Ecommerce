@@ -1,0 +1,53 @@
+# ─────────────────────────────────────────────────────────────
+# .gitignore — ShopEasy
+# Tells Git which files and folders NOT to track.
+# ─────────────────────────────────────────────────────────────
+
+# ── Sensitive configuration files ────────────────────────────
+# These contain database credentials — NEVER commit them.
+# Each developer/environment has their own copy.
+includes/config.php
+includes/config.docker.php
+
+# ── Uploaded product images ───────────────────────────────────
+# User-uploaded files are not part of source code.
+# They are stored on the server or a cloud storage service.
+assets/images/*.jpg
+assets/images/*.jpeg
+assets/images/*.png
+assets/images/*.webp
+assets/images/*.gif
+# Keep the folder itself tracked (via .gitkeep)
+!assets/images/.gitkeep
+
+# ── Docker runtime data ───────────────────────────────────────
+# Docker volumes and generated data
+docker/mysql/data/
+
+# ── OS generated files ────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ── IDE and editor files ──────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# ── PHP logs and temp files ───────────────────────────────────
+*.log
+*.tmp
+*.temp
+/tmp/
+
+# ── Composer (if added later) ─────────────────────────────────
+/vendor/
+composer.lock

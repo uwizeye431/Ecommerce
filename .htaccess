@@ -1,0 +1,9 @@
+Options -Indexes
+<FilesMatch "\.(php)$">
+    php_flag output_buffering on
+</FilesMatch>
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ index.php [L,QSA]
+

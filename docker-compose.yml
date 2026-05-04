@@ -1,0 +1,72 @@
+# ─────────────────────────────────────────────────────────────
+# docker-compose.yml — ShopEasy multi-container setup
+#
+# Services:
+#   app  → PHP 8.2 + Apache (your ShopEasy application)
+#   db   → MySQL 8.0 (database server)
+#
+# Usage:
+#   Start:   docker-compose up -d
+#   Stop:    docker-compose down
+#   Logs:    docker-compose logs -f
+#   Rebuild: docker-compose up -d --build
+# ─────────────────────────────────────────────────────────────
+
+services:
+
+  # ── PHP + Apache application container ─────────────────────
+  app:
+    build:
+      context: .           # use the Dockerfile in this folder
+      dockerfile: Dockerfile
+    container_name: shopeasy_app
+    ports:
+      - "8080:80"          # visit http://localhost:8080 in your browser
+    depends_on:
+      db:
+        condition: service_healthy   # wait for MySQL to be ready before starting
+    environment:
+      # These override values inside the container at runtime
+      APP_ENV: production
+      IS_DOCKER: "true"
+    volumes:
+      # Mount the images folder so uploaded product images persist
+      - ./assets/images:/var/www/html/assets/images
+    networks:
+      - shopeasy_network
+    restart: unless-stopped
+
+  # ── MySQL 8 database container ──────────────────────────────
+  db:
+    image: mysql:8.0
+    container_name: shopeasy_db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword      # root user password
+      MYSQL_DATABASE: ecommerce_platform     # auto-creates this database
+      MYSQL_USER: shopeasy_user              # app database user
+      MYSQL_PASSWORD: shopeasy_pass          # app database password
+    ports:
+      - "3307:3306"        # access MySQL from host on port 3307 (avoids conflict with XAMPP)
+    volumes:
+      # Persist database data between container restarts
+      - shopeasy_db_data:/var/lib/mysql
+      # Auto-run database.sql on first startup to create tables + seed data
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - shopeasy_network
+    restart: unless-stopped
+
+# ── Named volumes ───────────────────────────────────────────
+volumes:
+  shopeasy_db_data:
+    driver: local
+
+# ── Network ─────────────────────────────────────────────────
+networks:
+  shopeasy_network:
+    driver: bridge
