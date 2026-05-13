@@ -2,7 +2,8 @@
 require_once __DIR__ . '/config.php';
 
 /**
- * Returns a shared PDO instance.
+ * Returns a shared PDO instance (Singleton Pattern).
+ * This ensures we only connect to the database once per request.
  */
 function getPDO(): PDO
 {
